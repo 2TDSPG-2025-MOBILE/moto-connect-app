@@ -14,14 +14,22 @@ import { Logo } from "../../components/Logo";
 
 colorScheme.set("light");
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [registrationNumber, setRegistrationNumber] = useState("");
   const [password, setPassword] = useState("");
   const { navigate } = useNavigation();
 
-  function handleLogin() {
-    console.log("Login:", { email, password });
-    navigate("Home");
+  function handleRegister() {
+    console.log("Cadastro:", { 
+      email, 
+      fullName, 
+      registrationNumber, 
+      password 
+    });
+    // Aqui você pode adicionar a lógica de cadastro
+    // navigate("Login"); // Voltar para login após cadastro
   }
 
   return (
@@ -48,11 +56,24 @@ export default function Login() {
           {/* Formulário */}
           <View>
             <CustomInput
-              placeholder="Email"
+              placeholder="Email da Mottu"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+            />
+
+            <CustomInput
+              placeholder="Nome Completo"
+              value={fullName}
+              onChangeText={setFullName}
+            />
+
+            <CustomInput
+              placeholder="Número de registro"
+              value={registrationNumber}
+              onChangeText={setRegistrationNumber}
+              keyboardType="numeric"
             />
 
             <CustomInput
@@ -63,18 +84,18 @@ export default function Login() {
             />
 
             <CustomButton
-              title="Entrar"
-              onPress={handleLogin}
+              title="Cadastrar"
+              onPress={handleRegister}
             />
 
-            {/* Link Cadastre-se */}
-            <View className="flex-row justify-end mt-4">
+            {/* Link Voltar para Login */}
+            <View className="flex-row justify-center mt-4">
               <Text className="text-gray-600 text-sm">
-                Não tem conta?{" "}
+                Já tem conta?{" "}
               </Text>
-              <TouchableOpacity onPress={() => navigate("Register")}>
+              <TouchableOpacity onPress={() => navigate("Login")}>
                 <Text className="text-blue-600 text-sm font-semibold underline">
-                  Cadastre-se
+                  Entrar
                 </Text>
               </TouchableOpacity>
             </View>
