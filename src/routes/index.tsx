@@ -9,11 +9,13 @@ import MotorcycleRegistration from "../screens/MotorcycleRegistration";
 import RFIDScreen from "../screens/RFIDScreen";
 import { SuccessScreen } from "../screens/SuccessScreen";
 import { ErrorScreen } from "../screens/ErrorScreen";
+import MotorcycleList from "../screens/MotorcycleList";
 
 
 export type RootStackParamList = {
   Home: undefined;
   MotorcycleRegistration: undefined;
+  MotorcycleList: undefined;
   Register: undefined;
   Login: undefined;
   RFIDScreen: { motoData: any };
@@ -37,6 +39,7 @@ export default function Routes() {
         <Screen name="Register" component={Register} />
         <Screen name="Home" component={Home} />
         <Screen name="MotorcycleRegistration" component={MotorcycleRegistration} />
+        <Screen name="MotorcycleList" component={MotorcycleList} />
         <Screen name="RFIDScreen" component={RFIDScreen} />
         <Screen name="SuccessScreen" component={SuccessScreen} />
         <Screen name="ErrorScreen" component={ErrorScreen} />

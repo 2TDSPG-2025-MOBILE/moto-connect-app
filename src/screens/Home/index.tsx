@@ -72,7 +72,7 @@ export default function Home() {
 
             <TouchableOpacity
               className="bg-white rounded-2xl p-6 flex-1 ml-3 shadow-sm border border-gray-100"
-              onPress={() => console.log("Listagem de motos")}
+              onPress={() => navigation.navigate("MotorcycleList")}
             >
               <View className="items-center">
                 <View className="bg-blue-100 rounded-full p-4 mb-4">
@@ -99,7 +99,7 @@ export default function Home() {
             onPress={() => console.log("Fale conosco")}
           >
             <Text className="text-blue-600 font-semibold">
-              Fale conosco
+              Em breve...
             </Text>
           </TouchableOpacity>
         </View>
