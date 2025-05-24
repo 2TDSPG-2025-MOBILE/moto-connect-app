@@ -1,37 +1,37 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
 import { useNavigation } from "@react-navigation/native";
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from "expo-status-bar";
-
 import { colorScheme } from "nativewind";
-
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Menu } from '../../components/Menu';
+import { RootStackParamList } from '../../routes';
 
 colorScheme.set("light");
 
+const image = require("../../../assets/images/banner-home.jpg");
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
 export default function Home() {
-  const { navigate } = useNavigation();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   return (
     <View className="flex-1 bg-gray-50">
       <StatusBar style="light" />
-      
+
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header com imagem de fundo */}
         <ImageBackground
-          source={{ uri: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=400&fit=crop" }}
+          source={image}
           className="h-64 justify-end"
+          resizeMode="cover"
         >
-          {/* Overlay escuro */}
           <View className="absolute inset-0 bg-black/40" />
-          
-          {/* Botão de perfil */}
+
           <TouchableOpacity className="absolute top-12 right-4 bg-white/20 rounded-full p-2">
             <Ionicons name="person-outline" size={24} color="white" />
           </TouchableOpacity>
 
-          {/* Conteúdo do header */}
           <View className="p-6 pb-8">
             <Text className="text-white text-2xl font-bold mb-2">
               MotoConnect
@@ -45,7 +45,6 @@ export default function Home() {
           </View>
         </ImageBackground>
 
-        {/* Seção de saudação */}
         <View className="bg-blue-600 px-6 py-4">
           <Text className="text-white text-lg font-semibold mb-1">
             Olá Mateus, como vai?
@@ -55,13 +54,11 @@ export default function Home() {
           </Text>
         </View>
 
-        {/* Cards de opções */}
         <View className="px-6 py-8">
           <View className="flex-row justify-between">
-            {/* Card Cadastro de motos */}
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-white rounded-2xl p-6 flex-1 mr-3 shadow-sm border border-gray-100"
-              onPress={() => console.log("Cadastro de motos")}
+              onPress={() => navigation.navigate('MotorcycleRegistration')}
             >
               <View className="items-center">
                 <View className="bg-blue-100 rounded-full p-4 mb-4">
@@ -73,8 +70,7 @@ export default function Home() {
               </View>
             </TouchableOpacity>
 
-            {/* Card Listagem de motos */}
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-white rounded-2xl p-6 flex-1 ml-3 shadow-sm border border-gray-100"
               onPress={() => console.log("Listagem de motos")}
             >
@@ -90,7 +86,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Seção de ajuda */}
         <View className="bg-blue-600 mx-6 rounded-2xl p-6 mb-8">
           <Text className="text-white text-lg font-semibold mb-2">
             Precisa de ajuda?
@@ -98,8 +93,8 @@ export default function Home() {
           <Text className="text-white text-sm opacity-90 mb-4">
             Fale com o nosso time de atendimento 24 horas
           </Text>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             className="bg-white rounded-full px-6 py-3 self-start"
             onPress={() => console.log("Fale conosco")}
           >
@@ -110,20 +105,7 @@ export default function Home() {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View className="bg-blue-600 flex-row justify-around py-4 px-6">
-        <TouchableOpacity className="items-center">
-          <MaterialCommunityIcons name="motorbike" size={28} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity className="items-center">
-          <Ionicons name="home-outline" size={28} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity className="items-center">
-          <MaterialCommunityIcons name="speedometer" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
+      <Menu />
     </View>
   );
 }
