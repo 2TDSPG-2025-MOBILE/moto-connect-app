@@ -3,10 +3,6 @@
 Aplicativo **React Native + Expo + TypeScript** criado para o **Challenge 2025 – FIAP**.  
 O MotoConnect ajuda mecânicos e gestores da Mottu a rastrear, registrar e visualizar manutenções de motocicletas de forma simples e rápida.
 
-<p align="center">
-  <img src="docs/screen-home.png" width="250"/> <img src="docs/screen-report.png" width="250"/>
-</p>
-
 ---
 
 ## ✨ Funcionalidades
@@ -75,8 +71,8 @@ src/
 
 - [x] Estrutura inicial com TypeScript
 - [x] Login + autenticação mock
-- [x] Formulário de manutenção
 - [x] AsyncStorage de relatórios
+- [ ] Formulário de manutenção
 - [ ] Integração real com API .NET
 - [ ] Tela de mapa do pátio (fase 2)
 - [ ] Upload de fotos no relatório
