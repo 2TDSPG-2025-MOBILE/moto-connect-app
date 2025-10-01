@@ -96,7 +96,12 @@ src/
 | Lucas Fialho | RM557884 |
 | Cauan Passos | RM555466 |
 
+## 🚀 Vídeo:
+https://www.youtube.com/watch?v=PLDdEBcDVXk
+
 ---
+
+
 
 ## 📜 Licença
 
