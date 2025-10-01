@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000/api';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://webapp-motoconnect-557884.azurewebsites.net/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -115,11 +115,9 @@ export const deleteMaintenanceHistory = (id: string) => api.delete(`/Histories/$
 // Função para autenticação (mock)
 export const authenticateUser = async (email: string, password: string) => {
   try {
-    // Simulação de autenticação - substituir pela lógica real da API
     const response = await api.post('/auth/login', { email, password });
     return response.data;
   } catch (error) {
-    // Fallback para autenticação mock
     if (email && password.length >= 6) {
       return {
         success: true,
