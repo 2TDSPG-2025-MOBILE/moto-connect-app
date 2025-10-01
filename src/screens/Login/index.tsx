@@ -106,32 +106,41 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Simulação de autenticação (substitua pela sua lógica de API)
-      // Aqui você faria a chamada para sua API de autenticação
+      // Importar a função de autenticação
+      const { authenticateUser } = require('../../services/api');
       
-      const userData = {
-        email: email.toLowerCase().trim(),
-        loginTime: new Date().toISOString(),
-        isAuthenticated: true
-      };
-
-      // Salvar dados do usuário
-      await saveUserData(userData);
-
-      // Salvar histórico de login
-      await saveLoginHistory(userData);
-
-      console.log("Login realizado:", userData);
+      // Tentar autenticar com a API
+      const authResult = await authenticateUser(email.toLowerCase().trim(), password);
       
-      Alert.alert(
-        'Sucesso', 
-        'Login realizado com sucesso!',
-        [{ text: 'OK', onPress: () => navigate("Home") }]
-      );
+      if (authResult.success) {
+        const userData = {
+          ...authResult.user,
+          email: email.toLowerCase().trim(),
+          loginTime: new Date().toISOString(),
+          isAuthenticated: true,
+          token: authResult.token
+        };
+
+        // Salvar dados do usuário
+        await saveUserData(userData);
+
+        // Salvar histórico de login
+        await saveLoginHistory(userData);
+
+        console.log("Login realizado:", userData);
+        
+        Alert.alert(
+          'Sucesso', 
+          'Login realizado com sucesso!',
+          [{ text: 'OK', onPress: () => navigate("Home") }]
+        );
+      } else {
+        Alert.alert('Erro', 'Credenciais inválidas. Verifique seu email e senha.');
+      }
 
     } catch (error) {
       console.log('Erro no login:', error);
-      Alert.alert('Erro', 'Falha ao realizar login. Tente novamente.');
+      Alert.alert('Erro', 'Falha ao realizar login. Verifique suas credenciais e tente novamente.');
     } finally {
       setIsLoading(false);
     }

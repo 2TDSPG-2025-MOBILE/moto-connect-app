@@ -91,12 +91,44 @@ export default function MotorcycleRegistration() {
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { createVehicle } = require('../../services/api');
+      
+      const plateClean = formData.placa.replace('-', '').toUpperCase();
+      
+      const vehicleData = {
+        licensePlate: plateClean,
+        vehicleModel: formData.modelo || 'E'
+      };
 
-      navigation.navigate('RFIDScreen', { motoData: formData });
+      const response = await createVehicle(vehicleData);
 
-    } catch (error) {
-      Alert.alert('Erro', 'Falha ao processar cadastro. Tente novamente.');
+      if (response.status >= 200 && response.status < 300) {
+        Alert.alert(
+          'Sucesso!',
+          'Moto cadastrada com sucesso!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('RFIDScreen', { 
+                  motoData: { 
+                    ...formData, 
+                    id: response.data.vehicleId 
+                  } 
+                });
+              }
+            }
+          ]
+        );
+      } else {
+        const errorMsg = response.data?.error || 'Erro ao cadastrar moto';
+        Alert.alert('Erro', errorMsg);
+      }
+
+    } catch (error: any) {
+      console.log('Erro no cadastro de moto:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Falha ao cadastrar moto. Verifique os dados e tente novamente.';
+      Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +188,7 @@ export default function MotorcycleRegistration() {
 
             <View className="bg-white mt-4 rounded-xl px-2 justify-center h-14">
               <Picker
-                selectedValue={formData.modelo}
+                selectedValue={formData.modelo || 'E'}
                 onValueChange={(itemValue) => handleInputChange('modelo', itemValue)}
                 style={{
                   color: "white",
