@@ -28,12 +28,10 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const { navigate } = useNavigation();
 
-  // Carregar dados salvos ao inicializar o componente
   useEffect(() => {
     loadSavedData();
   }, []);
 
-  // Função para carregar dados salvos do AsyncStorage
   async function loadSavedData() {
     try {
       const savedEmail = await AsyncStorage.getItem('@user_email');
@@ -48,7 +46,6 @@ export default function Login() {
     }
   }
 
-  // Função para salvar dados no AsyncStorage
   async function saveUserData(userData) {
     try {
       if (rememberMe) {
@@ -59,7 +56,6 @@ export default function Login() {
         await AsyncStorage.removeItem('@remember_me');
       }
       
-      // Salvar dados da sessão atual
       await AsyncStorage.setItem('@current_user', JSON.stringify(userData));
       await AsyncStorage.setItem('@login_timestamp', new Date().toISOString());
     } catch (error) {
@@ -67,18 +63,15 @@ export default function Login() {
     }
   }
 
-  // Validação de campos
   function validateFields() {
     const newErrors: { [key: string]: string } = {};
 
-    // Validação de email
     if (!email.trim()) {
       newErrors.email = 'Email é obrigatório';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Email inválido';
     }
 
-    // Validação de senha
     if (!password.trim()) {
       newErrors.password = 'Senha é obrigatória';
     } else if (password.length < 6) {
@@ -89,14 +82,12 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   }
 
-  // Limpar campos
   function clearFields() {
     setEmail("");
     setPassword("");
     setErrors({});
   }
 
-  // Função de login
   async function handleLogin() {
     if (!validateFields()) {
       Alert.alert('Erro', 'Por favor, corrija os campos destacados');
@@ -106,13 +97,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Importar a função de autenticação
-      const { authenticateUser } = require('../../services/api');
+      const { loginUser } = require('../../services/api');
       
-      // Tentar autenticar com a API
-      const authResult = await authenticateUser(email.toLowerCase().trim(), password);
+      const authResult = await loginUser(email.toLowerCase().trim(), password);
       
-      if (authResult.success) {
+      if (authResult.success && authResult.user) {
         const userData = {
           ...authResult.user,
           email: email.toLowerCase().trim(),
@@ -121,32 +110,28 @@ export default function Login() {
           token: authResult.token
         };
 
-        // Salvar dados do usuário
         await saveUserData(userData);
-
-        // Salvar histórico de login
         await saveLoginHistory(userData);
 
         console.log("Login realizado:", userData);
         
         Alert.alert(
           'Sucesso', 
-          'Login realizado com sucesso!',
+          authResult.message || 'Login realizado com sucesso!',
           [{ text: 'OK', onPress: () => navigate("Home") }]
         );
       } else {
-        Alert.alert('Erro', 'Credenciais inválidas. Verifique seu email e senha.');
+        Alert.alert('Erro', authResult.message || 'Email ou senha incorretos');
       }
 
     } catch (error) {
       console.log('Erro no login:', error);
-      Alert.alert('Erro', 'Falha ao realizar login. Verifique suas credenciais e tente novamente.');
+      Alert.alert('Erro', 'Falha ao realizar login. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
   }
 
-  // Salvar histórico de logins
   async function saveLoginHistory(userData) {
     try {
       const existingHistory = await AsyncStorage.getItem('@login_history');

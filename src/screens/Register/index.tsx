@@ -75,30 +75,29 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // Simulação de chamada de API de registro
-      // Substitua por sua lógica de API real
-      const response: { success: boolean; message: string } = await new Promise((resolve) =>
-        setTimeout(() => {
-          if (email === "test@example.com") {
-            resolve({ success: false, message: "Email já cadastrado" });
-          } else {
-            resolve({ success: true, message: "Usuário cadastrado com sucesso!" });
-          }
-        }, 1500)
-      );
+      const { registerUser } = require('../../services/api');
+      
+      const userData = {
+        email: email.toLowerCase().trim(),
+        password: password,
+        type: selectedRole === 'admin' ? 1 : 0
+      };
 
-      if (response.success) {
+      const result = await registerUser(userData);
+
+      if (result.success) {
         Alert.alert(
           "Sucesso",
-          response.message,
+          "Usuário cadastrado com sucesso!",
           [{ text: "OK", onPress: () => navigate("Login") }]
         );
       } else {
-        Alert.alert("Erro", response.message);
+        Alert.alert("Erro", "Falha ao realizar cadastro. Tente novamente.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Erro no registro:", error);
-      Alert.alert("Erro", "Falha ao realizar cadastro. Tente novamente.");
+      const errorMessage = error.message || "Falha ao realizar cadastro. Tente novamente.";
+      Alert.alert("Erro", errorMessage);
     } finally {
       setIsLoading(false);
     }

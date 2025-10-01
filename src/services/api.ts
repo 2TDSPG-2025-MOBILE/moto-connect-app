@@ -62,6 +62,22 @@ export interface User {
   type: number;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message?: string;
+  user?: {
+    userID: string;
+    email: string;
+    type: number;
+  };
+  token?: string;
+}
+
 export interface MaintenanceHistory {
   id: string;
   vehicleId: string;
@@ -112,26 +128,64 @@ export const getMaintenanceHistoryById = (id: string) => api.get(`/Histories/${i
 export const updateMaintenanceHistory = (id: string, historyData: Partial<MaintenanceHistory>) => api.put(`/Histories/${id}`, historyData);
 export const deleteMaintenanceHistory = (id: string) => api.delete(`/Histories/${id}`);
 
-// Função para autenticação (mock)
-export const authenticateUser = async (email: string, password: string) => {
+export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await api.post('/auth/login', { email, password });
-    return response.data;
-  } catch (error) {
-    if (email && password.length >= 6) {
+    const response = await getUsers();
+    
+    if (response.status === 200 && Array.isArray(response.data)) {
+      const users = response.data;
+      const user = users.find(
+        (u: User) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      );
+      
+      if (user) {
+        return {
+          success: true,
+          message: 'Login realizado com sucesso',
+          user: {
+            userID: user.userID || '',
+            email: user.email,
+            type: user.type
+          },
+          token: `token-${user.userID}-${Date.now()}`
+        };
+      }
+      
       return {
-        success: true,
-        user: {
-          id: '1',
-          email: email,
-          name: 'Usuário Teste'
-        },
-        token: 'mock-jwt-token'
+        success: false,
+        message: 'Email ou senha incorretos'
       };
     }
-    throw new Error('Credenciais inválidas');
+    
+    return {
+      success: false,
+      message: 'Erro ao conectar com o servidor'
+    };
+  } catch (error: any) {
+    console.error('Erro no login:', error);
+    
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data?.message || 'Erro de autenticação'
+      };
+    }
+    
+    if (error.request) {
+      return {
+        success: false,
+        message: 'Não foi possível conectar ao servidor. Verifique sua conexão.'
+      };
+    }
+    
+    return {
+      success: false,
+      message: 'Erro inesperado ao fazer login'
+    };
   }
 };
+
+export const authenticateUser = loginUser;
 
 export const registerUser = async (userData: { email: string; password: string; type?: number }) => {
   try {
