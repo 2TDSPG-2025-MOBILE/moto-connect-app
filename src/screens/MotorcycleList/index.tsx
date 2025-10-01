@@ -6,18 +6,13 @@ import { DrawerMenu } from '../../components/DrawerMenu';
 import { getVehicles } from '../../services/api';
 
 interface Vehicle {
-    id: string;
-    placa: string;
-    modelo?: string;
-    marca?: string;
-    ano?: number;
-    status?: string;
+    vehicleId: string;
+    licensePlate: string;
+    vehicleModel: string;
 }
 
 interface FilterOptions {
-    status: string;
-    marca: string;
-    ano: string;
+    modelo: string;
 }
 
 export default function MotorcycleList() {
@@ -37,20 +32,8 @@ export default function MotorcycleList() {
     
     // Filtros
     const [filters, setFilters] = useState<FilterOptions>({
-        status: '',
-        marca: '',
-        ano: ''
+        modelo: ''
     });
-
-    // Mock data para demonstração
-    const mockVehicles: Vehicle[] = Array.from({ length: 45 }, (_, i) => ({
-        id: `${i + 1}`,
-        placa: `ABC${1234 + i}`,
-        modelo: ['CB 600F', 'XJ6', 'MT-07', 'CB 1000R', 'Ninja 650'][i % 5],
-        marca: ['Honda', 'Yamaha', 'Kawasaki', 'Suzuki', 'BMW'][i % 5],
-        ano: 2018 + (i % 6),
-        status: ['Disponível', 'Em uso', 'Manutenção'][i % 3]
-    }));
 
     useEffect(() => {
         loadVehicles();
@@ -63,7 +46,6 @@ export default function MotorcycleList() {
     const loadVehicles = async () => {
         setLoading(true);
         try {
-            // Tentativa de carregar da API real
             const response = await getVehicles({ 
                 page: currentPage, 
                 pageSize: itemsPerPage 
@@ -72,7 +54,7 @@ export default function MotorcycleList() {
             if (response.data && Array.isArray(response.data)) {
                 setVehicles(response.data);
                 
-                // Extrair informações de paginação do header X-Pagination
+                // Extrair informações de paginação
                 const paginationHeader = response.headers['x-pagination'];
                 if (paginationHeader) {
                     const paginationInfo = JSON.parse(paginationHeader);
@@ -80,28 +62,10 @@ export default function MotorcycleList() {
                 } else {
                     setTotalPages(Math.ceil(response.data.length / itemsPerPage));
                 }
-            } else {
-                throw new Error('Formato de resposta inválido');
             }
         } catch (error) {
-            console.log('Erro ao carregar veículos da API, usando dados mock:', error);
-            
-            // Fallback para dados mock
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedData = mockVehicles.slice(startIndex, endIndex);
-            
-            setVehicles(paginatedData);
-            setTotalPages(Math.ceil(mockVehicles.length / itemsPerPage));
-            
-            // Mostrar alerta apenas na primeira tentativa
-            if (currentPage === 1) {
-                Alert.alert(
-                    'Aviso', 
-                    'Não foi possível conectar com a API. Usando dados de demonstração.',
-                    [{ text: 'OK' }]
-                );
-            }
+            console.log('Erro ao carregar veículos:', error);
+            Alert.alert('Erro', 'Não foi possível carregar os veículos.');
         } finally {
             setLoading(false);
         }
@@ -113,30 +77,20 @@ export default function MotorcycleList() {
         // Filtro por busca (placa)
         if (search) {
             filtered = filtered.filter(vehicle => 
-                vehicle.placa.toLowerCase().includes(search.toLowerCase())
+                vehicle.licensePlate.toLowerCase().includes(search.toLowerCase())
             );
         }
 
-        // Filtro por status
-        if (filters.status) {
-            filtered = filtered.filter(vehicle => vehicle.status === filters.status);
-        }
-
-        // Filtro por marca
-        if (filters.marca) {
-            filtered = filtered.filter(vehicle => vehicle.marca === filters.marca);
-        }
-
-        // Filtro por ano
-        if (filters.ano) {
-            filtered = filtered.filter(vehicle => vehicle.ano?.toString() === filters.ano);
+        // Filtro por modelo
+        if (filters.modelo) {
+            filtered = filtered.filter(vehicle => vehicle.vehicleModel === filters.modelo);
         }
 
         setFilteredVehicles(filtered);
     };
 
     const clearFilters = () => {
-        setFilters({ status: '', marca: '', ano: '' });
+        setFilters({ modelo: '' });
         setSearch('');
         setFilterModalVisible(false);
     };
@@ -150,6 +104,13 @@ export default function MotorcycleList() {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
         }
+    };
+
+    const formatLicensePlate = (plate: string) => {
+        if (plate.length === 7) {
+            return `${plate.slice(0, 3)}-${plate.slice(3)}`;
+        }
+        return plate;
     };
 
     const renderPaginationButtons = () => {
@@ -180,7 +141,7 @@ export default function MotorcycleList() {
         for (let i = startPage; i <= endPage; i++) {
             buttons.push(
                 <TouchableOpacity 
-                    key={i}
+                    key={`page-${i}`}
                     className={`px-3 py-2 rounded-md mx-1 ${
                         i === currentPage ? 'bg-blue-700' : 'bg-gray-300'
                     }`}
@@ -250,7 +211,7 @@ export default function MotorcycleList() {
             {/* Lista de Veículos */}
             <FlatList
                 data={filteredVehicles}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.vehicleId}
                 className="flex-1 px-4"
                 refreshing={loading}
                 onRefresh={loadVehicles}
@@ -260,22 +221,11 @@ export default function MotorcycleList() {
                             <FontAwesome name="motorcycle" size={24} color="#1E40AF" />
                             <View className="ml-3 flex-1">
                                 <Text className="text-base font-semibold text-gray-800">
-                                    {item.placa}
+                                    {formatLicensePlate(item.licensePlate)}
                                 </Text>
                                 <Text className="text-sm text-gray-600">
-                                    {item.marca} {item.modelo} - {item.ano}
+                                    Modelo: {item.vehicleModel}
                                 </Text>
-                                <View className={`self-start px-2 py-1 rounded-full mt-1 ${
-                                    item.status === 'Disponível' ? 'bg-green-100' :
-                                    item.status === 'Em uso' ? 'bg-yellow-100' : 'bg-red-100'
-                                }`}>
-                                    <Text className={`text-xs font-medium ${
-                                        item.status === 'Disponível' ? 'text-green-800' :
-                                        item.status === 'Em uso' ? 'text-yellow-800' : 'text-red-800'
-                                    }`}>
-                                        {item.status}
-                                    </Text>
-                                </View>
                             </View>
                         </View>
                         <TouchableOpacity 
@@ -297,11 +247,13 @@ export default function MotorcycleList() {
             />
 
             {/* Paginação */}
-            <View className="flex-row justify-center items-center py-4 bg-gray-50">
-                <View className="flex-row items-center">
-                    {renderPaginationButtons()}
+            {totalPages > 1 && (
+                <View className="flex-row justify-center items-center py-4 bg-gray-50">
+                    <View className="flex-row items-center">
+                        {renderPaginationButtons()}
+                    </View>
                 </View>
-            </View>
+            )}
 
             <Menu />
 
@@ -327,44 +279,27 @@ export default function MotorcycleList() {
                             </TouchableOpacity>
                         </View>
 
-                        {/* Filtro por Status */}
+                        {/* Filtro por Modelo */}
                         <View className="mb-4">
-                            <Text className="text-base font-semibold text-gray-700 mb-2">Status</Text>
+                            <Text className="text-base font-semibold text-gray-700 mb-2">Modelo</Text>
                             <View className="flex-row flex-wrap">
-                                {['', 'Disponível', 'Em uso', 'Manutenção'].map((status) => (
+                                {[
+                                    { label: 'Todos', value: '' },
+                                    { label: 'E', value: 'E' },
+                                    { label: 'SPORT', value: 'SPORT' },
+                                    { label: 'POP', value: 'POP' }
+                                ].map((modelo) => (
                                     <TouchableOpacity
-                                        key={status}
+                                        key={modelo.value || 'all'}
                                         className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                                            filters.status === status ? 'bg-blue-700' : 'bg-gray-200'
+                                            filters.modelo === modelo.value ? 'bg-blue-700' : 'bg-gray-200'
                                         }`}
-                                        onPress={() => setFilters(prev => ({ ...prev, status }))}
+                                        onPress={() => setFilters({ modelo: modelo.value })}
                                     >
                                         <Text className={`${
-                                            filters.status === status ? 'text-white' : 'text-gray-700'
+                                            filters.modelo === modelo.value ? 'text-white' : 'text-gray-700'
                                         }`}>
-                                            {status || 'Todos'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </View>
-
-                        {/* Filtro por Marca */}
-                        <View className="mb-4">
-                            <Text className="text-base font-semibold text-gray-700 mb-2">Marca</Text>
-                            <View className="flex-row flex-wrap">
-                                {['', 'Honda', 'Yamaha', 'Kawasaki', 'Suzuki', 'BMW'].map((marca) => (
-                                    <TouchableOpacity
-                                        key={marca}
-                                        className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                                            filters.marca === marca ? 'bg-blue-700' : 'bg-gray-200'
-                                        }`}
-                                        onPress={() => setFilters(prev => ({ ...prev, marca }))}
-                                    >
-                                        <Text className={`${
-                                            filters.marca === marca ? 'text-white' : 'text-gray-700'
-                                        }`}>
-                                            {marca || 'Todas'}
+                                            {modelo.label}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
@@ -404,7 +339,7 @@ export default function MotorcycleList() {
                 <View className="flex-1 bg-black/50 justify-center items-center">
                     <View className="bg-white rounded-2xl p-6 w-80">
                         <Text className="text-lg font-bold text-gray-800 mb-4 text-center">
-                            {selectedVehicle?.placa}
+                            {selectedVehicle ? formatLicensePlate(selectedVehicle.licensePlate) : ''}
                         </Text>
                         
                         <TouchableOpacity className="flex-row items-center py-3 border-b border-gray-200">
@@ -415,11 +350,6 @@ export default function MotorcycleList() {
                         <TouchableOpacity className="flex-row items-center py-3 border-b border-gray-200">
                             <MaterialIcons name="edit" size={24} color="#1E40AF" />
                             <Text className="ml-3 text-base text-gray-700">Editar</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity className="flex-row items-center py-3 border-b border-gray-200">
-                            <MaterialIcons name="history" size={24} color="#1E40AF" />
-                            <Text className="ml-3 text-base text-gray-700">Histórico</Text>
                         </TouchableOpacity>
                         
                         <TouchableOpacity className="flex-row items-center py-3">

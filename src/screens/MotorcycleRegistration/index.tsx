@@ -106,19 +106,19 @@ export default function MotorcycleRegistration() {
         Alert.alert(
           'Sucesso!',
           'Moto cadastrada com sucesso!',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.navigate('RFIDScreen', { 
-                  motoData: { 
-                    ...formData, 
-                    id: response.data.vehicleId 
-                  } 
-                });
-              }
-            }
-          ]
+          // [
+          //   {
+          //     text: 'OK',
+          //     onPress: () => {
+          //       navigation.navigate('RFIDScreen', { 
+          //         motoData: { 
+          //           ...formData, 
+          //           id: response.data.vehicleId 
+          //         } 
+          //       });
+          //     }
+          //   }
+          // ]
         );
       } else {
         const errorMsg = response.data?.error || 'Erro ao cadastrar moto';
@@ -199,9 +199,9 @@ export default function MotorcycleRegistration() {
                 }}
                 dropdownIconColor="white"
               >
-                <Picker.Item label="E" value="E" />
-                <Picker.Item label="SPORT" value="SPORT" />
-                <Picker.Item label="POP" value="POP" />
+                <Picker.Item key="E" label="E" value="E" />
+                <Picker.Item key="SPORT" label="SPORT" value="SPORT" />
+                <Picker.Item key="POP" label="POP" value="POP" />
               </Picker>
             </View>
           </View>
