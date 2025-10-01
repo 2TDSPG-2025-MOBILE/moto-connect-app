@@ -72,10 +72,8 @@ src/
 - [x] Estrutura inicial com TypeScript
 - [x] Login + autenticação mock
 - [x] AsyncStorage de relatórios
-- [ ] Formulário de manutenção
-- [ ] Integração real com API .NET
-- [ ] Tela de mapa do pátio (fase 2)
-- [ ] Upload de fotos no relatório
+- [x] Formulário de manutenção
+- [x] Integração real com API .NET
 - [ ] Sincronização offline/online
 
 ---
